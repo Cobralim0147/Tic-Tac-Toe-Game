@@ -1,0 +1,261 @@
+import random 
+
+play_game = True
+con_playing = True
+
+total_moves = 0
+robo_move = 0
+human_move = 0 
+
+select = []
+
+players = { 'robots':'robot_type' , 'human' :'human_type'}
+positions = ['TL','TM','TR','CL','CM','CR','BL','BM','BR']
+board_value = ["'1' , '1'",
+               "'1' , '2'",
+               "'1' , '3'",
+               "'2' , '1'",
+               "'2' , '2'",
+               "'2' , '3'",
+               "'3' , '1'",
+               "'3' , '2'",
+               "'3' , '3'"]
+board = {   'TL':' ','TM':' ','TR':' ',
+            'CL':' ','CM':' ','CR':' ',
+            'BL':' ','BM':' ','BR':' '}
+
+
+def type():
+    #determine the type for each character
+
+    human_type = random.choice(['O', 'X'])
+
+    if human_type == 'O':
+        robot_type = 'X'
+    else:
+        robot_type = 'O'
+
+    print("\t\t\trobot type = " + robot_type + " and human_type = " + human_type + "\n\n")
+    
+    players['robots'] = robot_type
+    players['human'] = human_type
+
+    return robot_type , human_type 
+
+def robot():
+    #robot create a position 
+    while(True):
+        selected = random.choice(positions)
+
+        if board[selected] == ' ': 
+            print("robot selected = "+selected)
+            board[selected] = players['robots']
+            select.append(selected)
+            break
+        else :
+            continue 
+
+    return selected
+
+def human(bool_false):
+    while(bool_false != True):
+        selected = str(input("Enter your position = "))
+        selected = selected.upper()
+
+    
+        for j in range(9):
+            #if value entered has the that position , search for that position 
+            if selected == positions[j]:
+                #if the value entered is empty 
+                if board[selected] == ' ': 
+                    print("you selected = "+selected)
+                    board[selected] = players['human']
+                    bool_false = True
+                    select.append(selected)
+                    return selected
+                    break
+
+                #if the value entered is occupied
+                else :
+                    print("position occupied , selected position = "+selected)
+                    break
+
+
+        #if the value entered is invalid    
+        else :
+                print("position invalid , entered position = "+selected)
+
+def board_printing():
+    '''create a 3x3
+        +--+--+--+
+        |{}|{}|{}|   
+        +--+--+--+
+        |{}|{}|{}|   
+        +--+--+--+
+        |{}|{}|{}|   
+        +--+--+--+   
+    '''
+
+    print("+-" * 3 + "+")
+    print("|" + board['TL'] + "|" + board['TM'] 
+            + "|" + board['TR'] + "|")
+    print("+-" * 3 + "+")
+    print("|" +board['CL'] + "|" + board['CM'] 
+            + "|" + board['CR'] + "|")
+    print("+-" * 3 + "+")
+    print("|" + board['BL'] + "|" + board['BM'] 
+            + "|" + board['BR'] + "|")
+    print("+-" * 3 + "+")
+    
+def check_win():
+
+    #to check who won the game , if there is any 
+    runs = [
+            # horizontal
+            ["TL", "TM", "TR"],
+            ["CL", "CM", "CR"],
+            ["BL", "BM", "BR"],
+            # vertical
+            ["TL", "CL", "BL"],
+            ["TM", "CM", "BM"],
+            ["TR", "CR", "BR"],
+            # diagonal
+            ["TL", "CM", "BR"],
+            ["BL", "CM", "TR"]
+        ]
+
+    for z in range(1):
+        global play_game
+        for a,b,c in runs :  
+            #if robot wins the game
+            if board[a] == board[b] == board[c] == players['robots']:
+                print("robot won" )
+                play_game = False
+                cont_playing()
+                break
+            #if human wins the game
+            elif board[a] == board[b] == board[c] == players['human']:
+                print("player won" )
+                play_game = False
+                cont_playing()
+                break
+            #if no one wins the game
+            elif total_moves == 9 : 
+                print("draw !\n")  
+                play_game = False
+                cont_playing()
+                break
+            else:
+                continue
+    return play_game
+
+def robot_info():
+    # print Move Count, Compute(C)/Human(H), Row, Column, Piece(O/X)
+
+    global total_moves , players , board_value , robo_move
+
+    
+    for i in range(len(positions)):
+        if select[total_moves] == positions[i]:
+            board_values = board_value[i]
+            robo_move += 1
+        else: 
+            continue
+    
+    
+    print("About computer , Move count = " + str(robo_move) + " , By Computer(C) , Placement of move = " + board_values + " , Computer type = " + players['robots'] + "\n\n")
+
+def human_info():
+    # print Move Count, Compute(C)/Human(H), Row, Column, Piece(O/X) 
+    global total_moves , players , board_value , human_move
+
+    
+    for i in range(len(positions)):
+        if select[total_moves] == positions[i]:
+            board_values = board_value[i]
+            human_move+=1 
+        else: 
+            continue
+    
+    print("About human , Move count = " + str(human_move) + " , By Human(H) , Placement of move = " + board_values + " , Human type = " + players['human'] + "\n\n")
+
+def human_turn():
+    global total_moves
+
+    #human move
+    human(False)
+    board_printing()
+    human_info()
+    total_moves+=1 
+
+    check_win()
+
+def robot_turn():
+    global total_moves 
+
+    #robot move
+    robot()
+    board_printing()
+    robot_info()
+    total_moves+=1
+
+    check_win()
+
+def cont_playing():
+    global con_playing , play_game, select, total_moves, robo_move, human_move, board
+    
+    user = input(str("Do you wish to continue? \nClick Y for yes and N for No \nYour input = "))
+    user = user.upper()
+
+    if user == "Y":
+        # reset all the variables and attributes 
+        play_game = True
+        con_playing = True
+
+        total_moves = 0
+        robo_move = 0
+        human_move = 0 
+
+        board = {   'TL':' ','TM':' ','TR':' ',
+                    'CL':' ','CM':' ','CR':' ',
+                    'BL':' ','BM':' ','BR':' '}
+        select.clear()
+
+        type()
+        return con_playing and play_game
+
+    elif user == "N":
+        # quit the game 
+        print("Thank you for playing my game :)")
+        con_playing = False 
+        return con_playing
+
+    else : 
+        #if wrong input by the user
+        print("wrong input , please enter again !")
+
+
+
+
+# the main code 
+while con_playing == True:
+    print("""
+                TL - top left    | TM - top middle    | TR - top right
+                CL - centre left | CM - centre middle | CR - centre right
+                BL - bottom left | BM - bottom middle | BR - bottom right \n\n""")
+
+    type()
+    play_game = True
+    while play_game != False :
+        if players['robots'] == 'X':
+            robot_turn()
+            if not play_game: break 
+            human_turn()
+            if not play_game: break 
+        else: 
+            human_turn()
+            if not play_game: break 
+            robot_turn()
+            if not play_game: break 
+    
+
